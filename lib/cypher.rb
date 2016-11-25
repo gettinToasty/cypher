@@ -12,6 +12,8 @@ class Cypher
   "i" => "9", "j" => "10", "k" => "11", "l" => "12", "m" => "13", "n" => "14", "o" => "15", "p" => "16", "q" => "17",
   "r" => "18", "s" => "19", "t" => "20", "u" => "21", "v" => "22", "w" => "23", "x" => "24", "y" => "25", "z" => "26"}
 
+  attr_reader :lib, :seed
+
   def initialize(lib={})
     @lib = lib
     @multichar = false
@@ -20,25 +22,21 @@ class Cypher
 
   attr_reader :seed
 
-  def create(seed=nil)
+  def create(seed = rand(0..9999999))
     @seed = seed
-    @seed = rand(0..9999999) if !@seed
     srand @seed
     "a".upto("z") { |i| check(i) }
     multichar
   end
 
   def encode(str)
-    words = str.split(" ")
-    encoded_str = words.map { |word| encode_word(word) }
-    encoded_str.join()
+    str.split(" ").map { |word| encode_word(word) }.join()
   end
 
   def decode(str, seed=@seed)
-    create(seed) if @lib == {}
-    @multichar ? (words = str.split("  ")) : (words = str.split(" "))
-    decoded_str = words.map { |word| decode_word(word) }
-    decoded_str.join(" ")
+    create(seed) if @lib.empty?
+    words = @multichar ? (str.split("  ")) : (str.split(" "))
+    words.map { |word| decode_word(word) }.join(" ")
   end
 
 private
@@ -50,19 +48,15 @@ private
 
   def decode_word(word)
     @multichar ? (word = word.split(" ")) : (word = word.split(//))
-    decoded_word = word.map { |char| @lib.key(char) if @lib.has_value?(char) }
-    decoded_word.join()
+    word.map { |char| @lib.key(char) if @lib.has_value?(char) }.join()
   end
 
   def encode_word(word)
-    word = word.split(//)
-    encoded_word = []
-    word.each do |char|
+    word.split(//).map do |char|
       if @lib.has_key?(char)
-        @multichar ? (encoded_word << @lib[char]+" ") : (encoded_word << @lib[char])
+        char = @multichar ? (@lib[char]+" ") : (@lib[char])
       end
-    end
-    encoded_word.join()+" "
+    end.join()+" "
   end
 
   def multichar
