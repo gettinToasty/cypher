@@ -1,3 +1,5 @@
+require 'securerandom'
+
 class SimpleEncrypt
 
   # MORSE = {"a" => ".-", "b" => "-...", "c" => "-.-.", "d" => "-..", "e" => ".", "f" => "..-.", "g" => "--.", "h" => "....",
@@ -39,7 +41,7 @@ class SimpleEncrypt
   private
 
   def add_val(letter)
-    num = rand(100000..999999)
+    num = SecureRandom.urlsafe_base64(6)
     @lib.value?(num) ? add_val(letter) : (@lib[letter] = num.to_s)
   end
 
